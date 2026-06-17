@@ -41,7 +41,7 @@ Access is enforced server-side via a `role:` middleware, and the sidebar only sh
 - **Styling:** Tailwind CSS + lucide-react icons
 - **Build tool:** Vite 8
 - **Auth:** Laravel Breeze
-- **Database:** SQLite by default (easily switchable to MySQL/PostgreSQL)
+- **Database:** MySQL (MariaDB via XAMPP)
 
 ---
 
@@ -52,8 +52,9 @@ Access is enforced server-side via a `role:` middleware, and the sidebar only sh
 - PHP **8.3+** with the usual Laravel extensions
 - Composer
 - Node.js **18+** and npm
+- **MySQL / MariaDB** (e.g. via XAMPP)
 
-> On Windows, **XAMPP** already ships PHP — just make sure PHP is on your `PATH`.
+> On Windows, **XAMPP** ships both PHP and MySQL. Make sure PHP is on your `PATH` and that **MySQL is started** in the XAMPP Control Panel before migrating.
 
 ### Installation
 
@@ -74,9 +75,10 @@ cp .env.example .env          # Windows (cmd): copy .env.example .env
 # 5. Generate the application key
 php artisan key:generate
 
-# 6. Create the database file (SQLite default)
-#    Windows (PowerShell): New-Item database/database.sqlite
-#    macOS/Linux:          touch database/database.sqlite
+# 6. Create the MySQL database
+#    (start MySQL in XAMPP first, then run:)
+#    Windows: & "C:\xampp\mysql\bin\mysql.exe" -u root -e "CREATE DATABASE hospital_ms"
+#    Or create a database named `hospital_ms` in phpMyAdmin.
 
 # 7. Run migrations and seed demo data
 php artisan migrate --seed
@@ -84,6 +86,19 @@ php artisan migrate --seed
 # 8. Build the frontend assets
 npm run build
 ```
+
+The database connection is preconfigured in `.env` for XAMPP defaults:
+
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=hospital_ms
+DB_USERNAME=root
+DB_PASSWORD=
+```
+
+If your MySQL uses a different user/password, update these values in `.env`.
 
 ### Running the app
 
@@ -170,23 +185,6 @@ To wipe everything and reseed fresh demo data:
 ```bash
 php artisan migrate:fresh --seed
 ```
-
----
-
-## 🛢️ Using MySQL instead of SQLite
-
-Edit `.env`:
-
-```env
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=hospital_ms
-DB_USERNAME=root
-DB_PASSWORD=
-```
-
-Create the `hospital_ms` database, then run `php artisan migrate --seed`.
 
 ---
 

@@ -19,8 +19,14 @@ class ReportController extends Controller
     {
         $startOfMonth = now()->startOfMonth();
 
+        $monthExpression = match (DB::connection()->getDriverName()) {
+            'sqlite' => "strftime('%Y-%m', issued_at)",
+            'pgsql' => "to_char(issued_at, 'YYYY-MM')",
+            default => "DATE_FORMAT(issued_at, '%Y-%m')",
+        };
+
         $revenueByMonth = Bill::query()
-            ->select(DB::raw("strftime('%Y-%m', issued_at) as month"), DB::raw('SUM(paid_amount) as revenue'))
+            ->select(DB::raw("{$monthExpression} as month"), DB::raw('SUM(paid_amount) as revenue'))
             ->whereNotNull('issued_at')
             ->groupBy('month')
             ->orderBy('month')
