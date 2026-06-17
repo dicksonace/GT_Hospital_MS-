@@ -1,58 +1,195 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 🏥 MediCare HMS — Hospital Management System
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A full-featured Hospital Management System built with **Laravel 13**, **Inertia.js**, and **React**, styled with **Tailwind CSS**. It covers the day-to-day workflows of a hospital: patient registration, appointments, medical records, billing, pharmacy, lab, ward/bed management, admissions, staff & role management, and reporting.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## ✨ Features
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+| Module | What it does |
+|---|---|
+| **Dashboard** | Live stats (patients, doctors, today's appointments, pending bills, admissions, low-stock meds) + upcoming appointments and recent patients |
+| **Patients** | Register, search, edit and view patients with demographics, emergency contacts, allergies and history |
+| **Doctors** | Manage doctors (each gets a login), specialization, department and availability |
+| **Departments** | Clinical/operational departments |
+| **Appointments** | Schedule OPD / follow-up / emergency visits with status tracking |
+| **Medical Records** | Visit notes, symptoms, diagnosis and prescriptions per patient |
+| **Billing** | Invoices with line items, payments, balance and status (pending / partial / paid / cancelled) |
+| **Pharmacy** | Medicine inventory with stock levels, reorder alerts, pricing and expiry |
+| **Lab** | Test catalog + lab orders with results and status |
+| **Wards & Admissions** | Bed capacity tracking and inpatient (IPD) admission/discharge |
+| **Staff** | Create system users and assign roles |
+| **Reports** | Revenue, bills by status, appointments by department, top doctors |
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### 🔐 Roles & access
 
-## Learning Laravel
+Six roles drive what each user can see and do:
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+- **Administrator** — full access to everything
+- **Doctor**, **Nurse**, **Receptionist** — clinical modules (patients, appointments, records, lab orders, billing, admissions)
+- **Pharmacist** — pharmacy inventory
+- **Lab Technician** — lab test catalog
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Access is enforced server-side via a `role:` middleware, and the sidebar only shows the modules a user is allowed to use.
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+---
 
-## Agentic Development
+## 🧰 Tech stack
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+- **Backend:** Laravel 13 (PHP 8.3+)
+- **Frontend:** React 18 + Inertia.js (SPA-style, no separate API)
+- **Styling:** Tailwind CSS + lucide-react icons
+- **Build tool:** Vite 8
+- **Auth:** Laravel Breeze
+- **Database:** SQLite by default (easily switchable to MySQL/PostgreSQL)
+
+---
+
+## 🚀 Getting started
+
+### Prerequisites
+
+- PHP **8.3+** with the usual Laravel extensions
+- Composer
+- Node.js **18+** and npm
+
+> On Windows, **XAMPP** already ships PHP — just make sure PHP is on your `PATH`.
+
+### Installation
 
 ```bash
-composer require laravel/boost --dev
+# 1. Clone the repository
+git clone https://github.com/dicksonace/GT_Hospital_MS-.git
+cd GT_Hospital_MS-
 
-php artisan boost:install
+# 2. Install PHP dependencies
+composer install
+
+# 3. Install JavaScript dependencies
+npm install
+
+# 4. Create your environment file
+cp .env.example .env          # Windows (cmd): copy .env.example .env
+
+# 5. Generate the application key
+php artisan key:generate
+
+# 6. Create the database file (SQLite default)
+#    Windows (PowerShell): New-Item database/database.sqlite
+#    macOS/Linux:          touch database/database.sqlite
+
+# 7. Run migrations and seed demo data
+php artisan migrate --seed
+
+# 8. Build the frontend assets
+npm run build
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+### Running the app
 
-## Contributing
+**Option A — one command (recommended for development):**
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```bash
+composer run dev
+```
 
-## Code of Conduct
+This runs the PHP server, queue worker, log viewer and Vite dev server together.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+**Option B — run separately in two terminals:**
 
-## Security Vulnerabilities
+```bash
+php artisan serve     # terminal 1  → http://localhost:8000
+npm run dev           # terminal 2  → Vite dev server with hot reload
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Then open **http://localhost:8000** in your browser.
 
-## License
+---
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## 👤 Demo accounts
+
+After seeding, you can log in with any of these (password is `password` for all):
+
+| Role | Email |
+|---|---|
+| Administrator | `admin@hospital.test` |
+| Receptionist | `reception@hospital.test` |
+| Nurse | `nurse@hospital.test` |
+| Pharmacist | `pharmacist@hospital.test` |
+| Lab Technician | `lab@hospital.test` |
+| Doctor | `doctor1@hospital.test` … `doctor4@hospital.test` |
+
+> Log in as **admin@hospital.test** to see every module.
+
+The seeder also creates sample departments, doctors, wards, medicines, lab tests, patients, appointments and bills so the dashboard and lists are populated immediately.
+
+---
+
+## 🗂️ How it works
+
+- **Inertia.js** connects the Laravel backend to React without building a separate API. Controllers return `Inertia::render('Page', [...props])`, and the matching React page lives in `resources/js/Pages`.
+- **Routing & access:** All HMS routes are defined in `routes/web.php` behind `auth` + `verified` middleware. Admin-only and role-specific areas are wrapped in the `role:` middleware (`app/Http/Middleware/EnsureUserHasRole.php`).
+- **Numbering:** Patients, appointments, bills, lab orders and admissions get auto-generated reference numbers (e.g. `PAT00001`, `APT00001`, `BIL00001`) via `app/Support/NumberGenerator.php`.
+- **Enums** (`app/Enums`) define statuses and types (roles, appointment/bill/lab/admission status, gender) and are cast on the Eloquent models.
+
+### Project structure
+
+```
+app/
+├── Enums/                # UserRole, AppointmentStatus, BillStatus, etc.
+├── Http/
+│   ├── Controllers/      # One controller per module
+│   └── Middleware/       # EnsureUserHasRole (role-based access)
+├── Models/               # Patient, Doctor, Appointment, Bill, Ward, ...
+└── Support/              # NumberGenerator
+database/
+├── migrations/           # HMS schema (patients, appointments, bills, ...)
+└── seeders/              # DatabaseSeeder with demo data
+resources/js/
+├── Components/           # Reusable UI (Card, PageHeader, Pagination, ...)
+├── Layouts/              # AuthenticatedLayout (sidebar) + GuestLayout
+└── Pages/                # Module pages (Index/Create/Edit/Show)
+routes/
+└── web.php               # All application routes
+```
+
+---
+
+## 🧪 Tests
+
+```bash
+php artisan test
+```
+
+---
+
+## 🔁 Resetting the database
+
+To wipe everything and reseed fresh demo data:
+
+```bash
+php artisan migrate:fresh --seed
+```
+
+---
+
+## 🛢️ Using MySQL instead of SQLite
+
+Edit `.env`:
+
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=hospital_ms
+DB_USERNAME=root
+DB_PASSWORD=
+```
+
+Create the `hospital_ms` database, then run `php artisan migrate --seed`.
+
+---
+
+## 📄 License
+
+Open-sourced under the [MIT license](https://opensource.org/licenses/MIT).
