@@ -1,6 +1,5 @@
 import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
-import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 import GuestLayout from '@/Layouts/GuestLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
@@ -22,7 +21,7 @@ export default function Register() {
     };
 
     return (
-        <GuestLayout>
+        <GuestLayout title="Create an account" subtitle="Register a new MediCare HMS account">
             <Head title="Register" />
 
             <form onSubmit={submit}>
@@ -102,18 +101,20 @@ export default function Register() {
                     />
                 </div>
 
-                <div className="mt-4 flex items-center justify-end">
-                    <Link
-                        href={route('login')}
-                        className="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                    >
-                        Already registered?
-                    </Link>
+                <button
+                    type="submit"
+                    disabled={processing}
+                    className="mt-6 w-full rounded-lg bg-indigo-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 disabled:opacity-60"
+                >
+                    {processing ? 'Creating account…' : 'Create account'}
+                </button>
 
-                    <PrimaryButton className="ms-4" disabled={processing}>
-                        Register
-                    </PrimaryButton>
-                </div>
+                <p className="mt-6 text-center text-sm text-gray-600">
+                    Already registered?{' '}
+                    <Link href={route('login')} className="font-semibold text-indigo-600 hover:text-indigo-800">
+                        Sign in
+                    </Link>
+                </p>
             </form>
         </GuestLayout>
     );

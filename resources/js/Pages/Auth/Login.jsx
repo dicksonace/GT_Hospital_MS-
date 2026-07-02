@@ -1,7 +1,6 @@
 import Checkbox from '@/Components/Checkbox';
 import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
-import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 import GuestLayout from '@/Layouts/GuestLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
@@ -22,7 +21,7 @@ export default function Login({ status, canResetPassword }) {
     };
 
     return (
-        <GuestLayout>
+        <GuestLayout title="Welcome back" subtitle="Sign in to your MediCare HMS account">
             <Head title="Log in" />
 
             {status && (
@@ -30,6 +29,12 @@ export default function Login({ status, canResetPassword }) {
                     {status}
                 </div>
             )}
+
+            <div className="mb-6 rounded-lg border border-indigo-100 bg-indigo-50 p-3 text-xs text-indigo-700">
+                <span className="font-semibold">Demo admin:</span> admin@hospital.test
+                {' · '}
+                <span className="font-semibold">Password:</span> password
+            </div>
 
             <form onSubmit={submit}>
                 <div>
@@ -80,20 +85,26 @@ export default function Login({ status, canResetPassword }) {
                     </label>
                 </div>
 
-                <div className="mt-4 flex items-center justify-end">
-                    {canResetPassword && (
-                        <Link
-                            href={route('password.request')}
-                            className="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                        >
-                            Forgot your password?
-                        </Link>
-                    )}
-
-                    <PrimaryButton className="ms-4" disabled={processing}>
-                        Log in
-                    </PrimaryButton>
+                <div className="mt-4 flex items-center justify-between">
+                    <label className="flex items-center">
+                        {canResetPassword && (
+                            <Link
+                                href={route('password.request')}
+                                className="rounded-md text-sm text-indigo-600 hover:text-indigo-800 focus:outline-none"
+                            >
+                                Forgot your password?
+                            </Link>
+                        )}
+                    </label>
                 </div>
+
+                <button
+                    type="submit"
+                    disabled={processing}
+                    className="mt-6 w-full rounded-lg bg-indigo-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 disabled:opacity-60"
+                >
+                    {processing ? 'Signing in…' : 'Sign in'}
+                </button>
             </form>
         </GuestLayout>
     );

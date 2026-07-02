@@ -17,12 +17,15 @@ use App\Http\Controllers\StaffController;
 use App\Http\Controllers\WardController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
 
 Route::get('/', function () {
-    return Auth::check()
-        ? redirect()->route('dashboard')
-        : redirect()->route('login');
-});
+    if (Auth::check()) {
+        return redirect()->route('dashboard');
+    }
+
+    return Inertia::render('Welcome');
+})->name('welcome');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
