@@ -30,12 +30,6 @@ export default function Login({ status, canResetPassword }) {
                 </div>
             )}
 
-            <div className="mb-6 rounded-lg border border-indigo-100 bg-indigo-50 p-3 text-xs text-indigo-700">
-                <span className="font-semibold">Demo admin:</span> admin@hospital.test
-                {' · '}
-                <span className="font-semibold">Password:</span> password
-            </div>
-
             <form onSubmit={submit}>
                 <div>
                     <InputLabel htmlFor="email" value="Email" />
