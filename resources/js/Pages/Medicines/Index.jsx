@@ -6,6 +6,7 @@ import Pagination from '@/Components/Pagination';
 import SearchBar from '@/Components/SearchBar';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link } from '@inertiajs/react';
+import { formatMoney } from '@/lib/currency';
 import { Pencil, Pill, Plus } from 'lucide-react';
 
 export default function Index({ medicines, filters }) {
@@ -60,7 +61,7 @@ export default function Index({ medicines, filters }) {
                                                     </span>
                                                 )}
                                             </td>
-                                            <td className="px-4 py-3 text-gray-600">${Number(med.unit_price).toFixed(2)}</td>
+                                            <td className="px-4 py-3 text-gray-600">{formatMoney(med.unit_price)}</td>
                                             <td className="px-4 py-3 text-gray-600">{med.expiry_date ?? '—'}</td>
                                             <td className="px-4 py-3">
                                                 <div className="flex items-center justify-end gap-1">

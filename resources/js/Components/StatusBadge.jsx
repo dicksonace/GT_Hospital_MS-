@@ -14,6 +14,11 @@ const COLORS = {
     admitted: 'bg-blue-100 text-blue-800',
     discharged: 'bg-green-100 text-green-800',
     transferred: 'bg-purple-100 text-purple-800',
+    vitals: 'bg-teal-100 text-teal-800',
+    observation: 'bg-indigo-100 text-indigo-800',
+    medication: 'bg-amber-100 text-amber-800',
+    other: 'bg-gray-100 text-gray-700',
+    checkup: 'bg-teal-100 text-teal-800',
     // Booleans
     active: 'bg-green-100 text-green-800',
     inactive: 'bg-gray-200 text-gray-700',

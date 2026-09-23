@@ -30,6 +30,7 @@ class HandleInertiaRequests extends Middleware
     public function share(Request $request): array
     {
         $user = $request->user();
+        $user?->loadMissing(['doctor', 'nurse']);
 
         return [
             ...parent::share($request),
@@ -40,6 +41,8 @@ class HandleInertiaRequests extends Middleware
                     'email' => $user->email,
                     'role' => $user->role?->value,
                     'role_label' => $user->role?->label(),
+                    'doctor_id' => $user->doctor?->id,
+                    'nurse_id' => $user->nurse?->id,
                 ] : null,
             ],
             'flash' => [

@@ -32,7 +32,7 @@ export default function LabTestForm({ labTest = null }) {
                 <FormField label="Category" error={errors.category}>
                     <TextInput className="w-full" value={data.category} onChange={(e) => setData('category', e.target.value)} />
                 </FormField>
-                <FormField label="Price" error={errors.price} required>
+                <FormField label="Price (GH₵)" error={errors.price} required>
                     <TextInput type="number" step="0.01" min="0" className="w-full" value={data.price} onChange={(e) => setData('price', e.target.value)} />
                 </FormField>
                 <FormField label="Normal Range" error={errors.normal_range}>

@@ -3,7 +3,8 @@ import LinkButton from '@/Components/LinkButton';
 import PageHeader from '@/Components/PageHeader';
 import StatusBadge from '@/Components/StatusBadge';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
+import { formatMoney } from '@/lib/currency';
 import { Pencil } from 'lucide-react';
 
 function Info({ label, value }) {
@@ -18,6 +19,10 @@ function Info({ label, value }) {
 }
 
 export default function Show({ patient }) {
+    const role = usePage().props.auth?.user?.role;
+    const canWriteNurseNotes = role === 'admin' || role === 'nurse';
+    const canViewNurseNotes = ['admin', 'doctor', 'nurse'].includes(role);
+
     return (
         <AuthenticatedLayout header="Patients">
             <Head title={`${patient.first_name} ${patient.last_name}`} />
@@ -110,6 +115,40 @@ export default function Show({ patient }) {
                         )}
                     </Card>
 
+                    {canViewNurseNotes && (
+                    <Card
+                        title="Nurse Notes"
+                        actions={
+                            canWriteNurseNotes ? (
+                                <Link
+                                    href={route('nurse-notes.create', { patient_id: patient.id })}
+                                    className="text-xs font-medium text-indigo-600 hover:underline"
+                                >
+                                    Add note
+                                </Link>
+                            ) : null
+                        }
+                    >
+                        {patient.nurse_notes?.length ? (
+                            <ul className="divide-y divide-gray-50">
+                                {patient.nurse_notes.map((note) => (
+                                    <li key={note.id} className="py-2">
+                                        <Link
+                                            href={route('nurse-notes.show', note.id)}
+                                            className="text-sm font-medium text-indigo-600 hover:underline"
+                                        >
+                                            {note.nurse?.user?.name} · {note.note_type}
+                                        </Link>
+                                        <p className="text-xs text-gray-500">{note.notes}</p>
+                                    </li>
+                                ))}
+                            </ul>
+                        ) : (
+                            <p className="text-sm text-gray-500">No nurse notes yet. Doctors can review notes from here once a nurse records them.</p>
+                        )}
+                    </Card>
+                    )}
+
                     <Card title="Bills">
                         {patient.bills?.length ? (
                             <ul className="divide-y divide-gray-50">
@@ -123,7 +162,7 @@ export default function Show({ patient }) {
                                         </Link>
                                         <div className="flex items-center gap-3">
                                             <span className="text-sm text-gray-700">
-                                                ${Number(bill.total_amount).toFixed(2)}
+                                                {formatMoney(bill.total_amount)}
                                             </span>
                                             <StatusBadge status={bill.status} />
                                         </div>

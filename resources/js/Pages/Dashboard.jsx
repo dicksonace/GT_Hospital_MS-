@@ -1,10 +1,12 @@
 import StatusBadge from '@/Components/StatusBadge';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 import {
     BedDouble,
     CalendarDays,
+    ClipboardPlus,
     FlaskConical,
+    HeartPulse,
     Package,
     Receipt,
     Stethoscope,
@@ -15,13 +17,17 @@ const STAT_CARDS = [
     { key: 'patients', label: 'Total Patients', icon: Users, color: 'bg-blue-500' },
     { key: 'doctors', label: 'Doctors', icon: Stethoscope, color: 'bg-emerald-500' },
     { key: 'appointments_today', label: "Today's Appointments", icon: CalendarDays, color: 'bg-indigo-500' },
+    { key: 'checkups_today', label: "Today's Checkups", icon: HeartPulse, color: 'bg-teal-500' },
     { key: 'pending_bills', label: 'Pending Bills', icon: Receipt, color: 'bg-amber-500' },
     { key: 'active_admissions', label: 'Active Admissions', icon: BedDouble, color: 'bg-purple-500' },
     { key: 'pending_lab_orders', label: 'Pending Lab Orders', icon: FlaskConical, color: 'bg-rose-500' },
     { key: 'low_stock_medicines', label: 'Low Stock Medicines', icon: Package, color: 'bg-orange-500' },
 ];
 
-export default function Dashboard({ stats, recentAppointments, recentPatients }) {
+export default function Dashboard({ stats, recentAppointments, recentPatients, recentNurseNotes = [] }) {
+    const role = usePage().props.auth?.user?.role;
+    const canSeeNurseNotes = ['admin', 'doctor', 'nurse'].includes(role);
+
     return (
         <AuthenticatedLayout header="Dashboard">
             <Head title="Dashboard" />
@@ -59,8 +65,8 @@ export default function Dashboard({ stats, recentAppointments, recentPatients })
                 })}
             </div>
 
-            <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
-                <div className="rounded-xl border border-gray-100 bg-white shadow-sm lg:col-span-2">
+            <div className={`mt-6 grid grid-cols-1 gap-6 ${canSeeNurseNotes ? 'lg:grid-cols-2' : ''}`}>
+                <div className="rounded-xl border border-gray-100 bg-white shadow-sm">
                     <div className="border-b border-gray-100 px-6 py-4">
                         <h2 className="font-semibold text-gray-800">
                             Upcoming Appointments
@@ -99,38 +105,70 @@ export default function Dashboard({ stats, recentAppointments, recentPatients })
                     </div>
                 </div>
 
-                <div className="rounded-xl border border-gray-100 bg-white shadow-sm">
-                    <div className="border-b border-gray-100 px-6 py-4">
-                        <h2 className="font-semibold text-gray-800">
-                            Recently Registered
-                        </h2>
-                    </div>
-                    <div className="divide-y divide-gray-50">
-                        {recentPatients.length === 0 && (
-                            <p className="px-6 py-8 text-center text-sm text-gray-500">
-                                No patients yet.
-                            </p>
-                        )}
-                        {recentPatients.map((patient) => (
-                            <Link
-                                key={patient.id}
-                                href={route('patients.show', patient.id)}
-                                className="flex items-center gap-3 px-6 py-3 hover:bg-gray-50"
-                            >
-                                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-indigo-100 text-sm font-bold text-indigo-700">
-                                    {patient.first_name?.charAt(0)}
-                                </span>
-                                <div>
+                {canSeeNurseNotes && (
+                    <div className="rounded-xl border border-gray-100 bg-white shadow-sm">
+                        <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4">
+                            <h2 className="font-semibold text-gray-800">
+                                Nurse Notes
+                            </h2>
+                            <ClipboardPlus className="h-4 w-4 text-gray-400" />
+                        </div>
+                        <div className="divide-y divide-gray-50">
+                            {recentNurseNotes.length === 0 && (
+                                <p className="px-6 py-8 text-center text-sm text-gray-500">
+                                    No nurse notes yet.
+                                </p>
+                            )}
+                            {recentNurseNotes.map((note) => (
+                                <Link
+                                    key={note.id}
+                                    href={route('nurse-notes.show', note.id)}
+                                    className="block px-6 py-3 hover:bg-gray-50"
+                                >
                                     <p className="text-sm font-medium text-gray-800">
-                                        {patient.first_name} {patient.last_name}
+                                        {note.patient?.first_name} {note.patient?.last_name}
                                     </p>
                                     <p className="text-xs text-gray-500">
-                                        {patient.patient_number}
+                                        {note.nurse?.user?.name} · {note.note_type}
                                     </p>
-                                </div>
-                            </Link>
-                        ))}
+                                </Link>
+                            ))}
+                        </div>
                     </div>
+                )}
+            </div>
+
+            <div className="mt-6 rounded-xl border border-gray-100 bg-white shadow-sm">
+                <div className="border-b border-gray-100 px-6 py-4">
+                    <h2 className="font-semibold text-gray-800">
+                        Recently Registered
+                    </h2>
+                </div>
+                <div className="divide-y divide-gray-50">
+                    {recentPatients.length === 0 && (
+                        <p className="px-6 py-8 text-center text-sm text-gray-500">
+                            No patients yet.
+                        </p>
+                    )}
+                    {recentPatients.map((patient) => (
+                        <Link
+                            key={patient.id}
+                            href={route('patients.show', patient.id)}
+                            className="flex items-center gap-3 px-6 py-3 hover:bg-gray-50"
+                        >
+                            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-indigo-100 text-sm font-bold text-indigo-700">
+                                {patient.first_name?.charAt(0)}
+                            </span>
+                            <div>
+                                <p className="text-sm font-medium text-gray-800">
+                                    {patient.first_name} {patient.last_name}
+                                </p>
+                                <p className="text-xs text-gray-500">
+                                    {patient.patient_number}
+                                </p>
+                            </div>
+                        </Link>
+                    ))}
                 </div>
             </div>
         </AuthenticatedLayout>

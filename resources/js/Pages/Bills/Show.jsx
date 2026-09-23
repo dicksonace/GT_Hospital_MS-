@@ -4,6 +4,7 @@ import PageHeader from '@/Components/PageHeader';
 import StatusBadge from '@/Components/StatusBadge';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link } from '@inertiajs/react';
+import { formatMoney } from '@/lib/currency';
 import { Pencil } from 'lucide-react';
 
 export default function Show({ bill }) {
@@ -37,8 +38,8 @@ export default function Show({ bill }) {
                                 <tr key={item.id}>
                                     <td className="py-2 text-gray-800">{item.description}</td>
                                     <td className="py-2 text-center text-gray-600">{item.quantity}</td>
-                                    <td className="py-2 text-right text-gray-600">${Number(item.unit_price).toFixed(2)}</td>
-                                    <td className="py-2 text-right font-medium text-gray-800">${Number(item.total).toFixed(2)}</td>
+                                    <td className="py-2 text-right text-gray-600">{formatMoney(item.unit_price)}</td>
+                                    <td className="py-2 text-right font-medium text-gray-800">{formatMoney(item.total)}</td>
                                 </tr>
                             ))}
                         </tbody>
@@ -52,15 +53,15 @@ export default function Show({ bill }) {
                         <dl className="space-y-3 text-sm">
                             <div className="flex justify-between">
                                 <dt className="text-gray-500">Total</dt>
-                                <dd className="font-medium text-gray-800">${Number(bill.total_amount).toFixed(2)}</dd>
+                                <dd className="font-medium text-gray-800">{formatMoney(bill.total_amount)}</dd>
                             </div>
                             <div className="flex justify-between">
                                 <dt className="text-gray-500">Paid</dt>
-                                <dd className="font-medium text-green-600">${Number(bill.paid_amount).toFixed(2)}</dd>
+                                <dd className="font-medium text-green-600">{formatMoney(bill.paid_amount)}</dd>
                             </div>
                             <div className="flex justify-between border-t border-gray-100 pt-3">
                                 <dt className="text-gray-500">Balance</dt>
-                                <dd className="font-bold text-gray-900">${balance.toFixed(2)}</dd>
+                                <dd className="font-bold text-gray-900">{formatMoney(balance)}</dd>
                             </div>
                             <div className="flex justify-between pt-2">
                                 <dt className="text-gray-500">Status</dt>

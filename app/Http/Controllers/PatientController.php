@@ -74,6 +74,8 @@ class PatientController extends Controller
             'medicalRecords.doctor.user',
             'bills',
             'admissions.ward',
+            'nurseNotes.nurse.user',
+            'nurseNotes.doctor.user',
         ]);
 
         return Inertia::render('Patients/Show', [

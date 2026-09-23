@@ -20,7 +20,7 @@ export default function Index({ admissions, filters, statuses }) {
             <Head title="Admissions" />
             <PageHeader
                 title="Admissions (IPD)"
-                subtitle="Inpatient admissions and bed allocation"
+                subtitle="Admit, transfer, or discharge inpatients. Use Checkups for outpatient visits."
                 actions={
                     <LinkButton href={route('admissions.create')}>
                         <Plus className="h-4 w-4" /> New Admission

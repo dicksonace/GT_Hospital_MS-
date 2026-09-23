@@ -1,6 +1,7 @@
 import Card from '@/Components/Card';
 import PageHeader from '@/Components/PageHeader';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import { formatMoney } from '@/lib/currency';
 import { Head } from '@inertiajs/react';
 
 function Stat({ label, value, accent }) {
@@ -31,8 +32,8 @@ export default function Index({
                 <Stat label="Total Doctors" value={summary.total_doctors} />
                 <Stat label="Appointments (Month)" value={summary.appointments_this_month} />
                 <Stat label="Active Admissions" value={summary.active_admissions} />
-                <Stat label="Total Revenue" value={`$${summary.total_revenue.toFixed(2)}`} accent="text-green-600" />
-                <Stat label="Outstanding" value={`$${summary.outstanding_balance.toFixed(2)}`} accent="text-red-600" />
+                <Stat label="Total Revenue" value={formatMoney(summary.total_revenue)} accent="text-green-600" />
+                <Stat label="Outstanding" value={formatMoney(summary.outstanding_balance)} accent="text-red-600" />
                 <Stat label="Low Stock Meds" value={summary.low_stock_medicines} accent="text-amber-600" />
             </div>
 
@@ -46,7 +47,7 @@ export default function Index({
                                 <div key={row.month}>
                                     <div className="mb-1 flex justify-between text-xs text-gray-500">
                                         <span>{row.month}</span>
-                                        <span>${Number(row.revenue).toFixed(2)}</span>
+                                        <span>{formatMoney(row.revenue)}</span>
                                     </div>
                                     <div className="h-2 overflow-hidden rounded-full bg-gray-100">
                                         <div
@@ -67,7 +68,7 @@ export default function Index({
                                 <span className="text-gray-600">{row.status}</span>
                                 <span className="text-gray-500">
                                     {row.count} bills ·{' '}
-                                    <span className="font-medium text-gray-800">${row.amount.toFixed(2)}</span>
+                                    <span className="font-medium text-gray-800">{formatMoney(row.amount)}</span>
                                 </span>
                             </div>
                         ))}

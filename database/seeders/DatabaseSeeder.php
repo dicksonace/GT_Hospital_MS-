@@ -7,6 +7,7 @@ use App\Enums\AppointmentType;
 use App\Enums\BillStatus;
 use App\Enums\Gender;
 use App\Enums\UserRole;
+use App\Enums\NurseNoteType;
 use App\Models\Appointment;
 use App\Models\Bill;
 use App\Models\BillItem;
@@ -14,6 +15,8 @@ use App\Models\Department;
 use App\Models\Doctor;
 use App\Models\LabTest;
 use App\Models\Medicine;
+use App\Models\Nurse;
+use App\Models\NurseNote;
 use App\Models\Patient;
 use App\Models\User;
 use App\Models\Ward;
@@ -44,12 +47,20 @@ class DatabaseSeeder extends Seeder
             'phone' => '555-0101',
         ]);
 
-        User::create([
+        $nancy = User::create([
             'name' => 'Nancy Nurse',
             'email' => 'nurse@hospital.test',
             'password' => Hash::make('password'),
             'role' => UserRole::Nurse,
             'phone' => '555-0102',
+        ]);
+
+        $nina = User::create([
+            'name' => 'Nina Mensah',
+            'email' => 'nurse2@hospital.test',
+            'password' => Hash::make('password'),
+            'role' => UserRole::Nurse,
+            'phone' => '555-0106',
         ]);
 
         User::create([
@@ -103,6 +114,18 @@ class DatabaseSeeder extends Seeder
                 'is_available' => true,
             ]);
         });
+
+        $nurses = collect([
+            ['user' => $nancy, 'license' => 'NRS-0001', 'shift' => 'morning', 'dept' => 0],
+            ['user' => $nina, 'license' => 'NRS-0002', 'shift' => 'night', 'dept' => 4],
+        ])->map(fn ($n) => Nurse::create([
+            'user_id' => $n['user']->id,
+            'department_id' => $departments[$n['dept']]->id,
+            'license_number' => $n['license'],
+            'phone' => $n['user']->phone,
+            'shift' => $n['shift'],
+            'is_available' => true,
+        ]));
 
         // Wards
         Ward::insert([
@@ -197,5 +220,34 @@ class DatabaseSeeder extends Seeder
 
             $bill->recalculateTotals();
         }
+
+        $checkupPatient = $patients->first();
+        $checkupDoctor = $doctors->first();
+
+        Appointment::create([
+            'appointment_number' => 'CHK00001',
+            'patient_id' => $checkupPatient->id,
+            'doctor_id' => $checkupDoctor->id,
+            'department_id' => $checkupDoctor->department_id,
+            'appointment_date' => now()->toDateString(),
+            'appointment_time' => '10:30',
+            'type' => AppointmentType::Checkup,
+            'status' => AppointmentStatus::Scheduled,
+            'reason' => 'General wellness checkup',
+        ]);
+
+        NurseNote::create([
+            'patient_id' => $checkupPatient->id,
+            'nurse_id' => $nurses->first()->id,
+            'doctor_id' => $checkupDoctor->id,
+            'note_type' => NurseNoteType::Vitals,
+            'blood_pressure' => '120/80',
+            'temperature' => 36.8,
+            'pulse' => 72,
+            'respiratory_rate' => 16,
+            'oxygen_saturation' => 98,
+            'notes' => 'Patient stable. Vitals recorded before checkup.',
+            'recorded_at' => now(),
+        ]);
     }
 }

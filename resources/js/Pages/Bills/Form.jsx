@@ -4,6 +4,7 @@ import SelectInput from '@/Components/SelectInput';
 import TextareaInput from '@/Components/TextareaInput';
 import TextInput from '@/Components/TextInput';
 import { Link, useForm } from '@inertiajs/react';
+import { formatMoney } from '@/lib/currency';
 import { Plus, Trash2 } from 'lucide-react';
 
 export default function BillForm({
@@ -108,7 +109,7 @@ export default function BillForm({
                                     type="number"
                                     step="0.01"
                                     min="0"
-                                    placeholder="Price"
+                                    placeholder="GH₵"
                                     className="w-full"
                                     value={item.unit_price}
                                     onChange={(e) => updateItem(index, 'unit_price', e.target.value)}
@@ -131,9 +132,9 @@ export default function BillForm({
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                 <div className="rounded-lg bg-gray-50 p-4">
                     <p className="text-xs uppercase text-gray-400">Total</p>
-                    <p className="text-xl font-bold text-gray-900">${total.toFixed(2)}</p>
+                    <p className="text-xl font-bold text-gray-900">{formatMoney(total)}</p>
                 </div>
-                <FormField label="Paid Amount" error={errors.paid_amount}>
+                <FormField label="Paid Amount (GH₵)" error={errors.paid_amount}>
                     <TextInput type="number" step="0.01" min="0" className="w-full" value={data.paid_amount} onChange={(e) => setData('paid_amount', e.target.value)} />
                 </FormField>
                 {bill && (

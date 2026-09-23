@@ -8,6 +8,7 @@ import SelectInput from '@/Components/SelectInput';
 import StatusBadge from '@/Components/StatusBadge';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, router } from '@inertiajs/react';
+import { formatMoney } from '@/lib/currency';
 import { Eye, Pencil, Plus, Receipt } from 'lucide-react';
 
 export default function Index({ bills, filters, statuses }) {
@@ -59,8 +60,8 @@ export default function Index({ bills, filters, statuses }) {
                                         <td className="px-4 py-3 font-medium text-gray-800">
                                             {bill.patient?.first_name} {bill.patient?.last_name}
                                         </td>
-                                        <td className="px-4 py-3 text-gray-700">${Number(bill.total_amount).toFixed(2)}</td>
-                                        <td className="px-4 py-3 text-gray-700">${Number(bill.paid_amount).toFixed(2)}</td>
+                                        <td className="px-4 py-3 text-gray-700">{formatMoney(bill.total_amount)}</td>
+                                        <td className="px-4 py-3 text-gray-700">{formatMoney(bill.paid_amount)}</td>
                                         <td className="px-4 py-3">
                                             <StatusBadge status={bill.status} />
                                         </td>

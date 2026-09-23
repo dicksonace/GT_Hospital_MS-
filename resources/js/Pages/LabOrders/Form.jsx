@@ -2,6 +2,7 @@ import FormField from '@/Components/FormField';
 import PrimaryButton from '@/Components/PrimaryButton';
 import SelectInput from '@/Components/SelectInput';
 import TextareaInput from '@/Components/TextareaInput';
+import { formatMoney } from '@/lib/currency';
 import { Link, useForm } from '@inertiajs/react';
 
 export default function LabOrderForm({
@@ -50,7 +51,7 @@ export default function LabOrderForm({
                     <SelectInput className="w-full" value={data.lab_test_id} onChange={(e) => setData('lab_test_id', e.target.value)}>
                         <option value="">Select test</option>
                         {labTests.map((t) => (
-                            <option key={t.id} value={t.id}>{t.name} (${Number(t.price).toFixed(2)})</option>
+                            <option key={t.id} value={t.id}>{t.name} ({formatMoney(t.price)})</option>
                         ))}
                     </SelectInput>
                 </FormField>

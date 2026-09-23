@@ -43,7 +43,7 @@ export default function MedicineForm({ medicine = null }) {
                 <FormField label="Reorder Level" error={errors.reorder_level} required>
                     <TextInput type="number" min="0" className="w-full" value={data.reorder_level} onChange={(e) => setData('reorder_level', e.target.value)} />
                 </FormField>
-                <FormField label="Unit Price" error={errors.unit_price} required>
+                <FormField label="Unit Price (GH₵)" error={errors.unit_price} required>
                     <TextInput type="number" step="0.01" min="0" className="w-full" value={data.unit_price} onChange={(e) => setData('unit_price', e.target.value)} />
                 </FormField>
                 <FormField label="Expiry Date" error={errors.expiry_date}>

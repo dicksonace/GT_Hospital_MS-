@@ -32,6 +32,11 @@ class User extends Authenticatable
         return $this->hasOne(Doctor::class);
     }
 
+    public function nurse(): HasOne
+    {
+        return $this->hasOne(Nurse::class);
+    }
+
     public function hasRole(UserRole|string ...$roles): bool
     {
         $role = $this->role instanceof UserRole ? $this->role->value : $this->role;

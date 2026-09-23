@@ -7,6 +7,7 @@ import SearchBar from '@/Components/SearchBar';
 import StatusBadge from '@/Components/StatusBadge';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link } from '@inertiajs/react';
+import { formatMoney } from '@/lib/currency';
 import { Pencil, Plus, TestTubes } from 'lucide-react';
 
 export default function Index({ labTests, filters }) {
@@ -48,7 +49,7 @@ export default function Index({ labTests, filters }) {
                                         <td className="px-4 py-3 font-mono text-xs text-gray-600">{test.code}</td>
                                         <td className="px-4 py-3 font-medium text-gray-800">{test.name}</td>
                                         <td className="px-4 py-3 text-gray-600">{test.category ?? '—'}</td>
-                                        <td className="px-4 py-3 text-gray-600">${Number(test.price).toFixed(2)}</td>
+                                        <td className="px-4 py-3 text-gray-600">{formatMoney(test.price)}</td>
                                         <td className="px-4 py-3 text-gray-600">
                                             {test.normal_range ?? '—'} {test.unit}
                                         </td>

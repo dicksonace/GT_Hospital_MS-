@@ -7,6 +7,7 @@ use App\Models\Admission;
 use App\Models\Doctor;
 use App\Models\Patient;
 use App\Models\Ward;
+use App\Notifications\PatientAssignedNotification;
 use App\Support\NumberGenerator;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -78,7 +79,9 @@ class AdmissionController extends Controller
             $ward->increment('occupied_beds');
         }
 
-        return redirect()->route('admissions.index')->with('success', 'Patient admitted successfully.');
+        $this->notifyDoctor($admission->fresh(['patient', 'doctor.user']), 'admission');
+
+        return redirect()->route('admissions.index')->with('success', 'Patient admitted and the attending doctor was notified by email.');
     }
 
     public function show(Admission $admission): Response
@@ -119,6 +122,7 @@ class AdmissionController extends Controller
 
         $oldStatus = $admission->status;
         $oldWardId = $admission->ward_id;
+        $previousDoctorId = $admission->doctor_id;
 
         if ($oldStatus === AdmissionStatus::Admitted && $data['status'] !== AdmissionStatus::Admitted->value) {
             Ward::find($oldWardId)?->decrement('occupied_beds');
@@ -130,6 +134,10 @@ class AdmissionController extends Controller
         }
 
         $admission->update($data);
+
+        if ((int) $previousDoctorId !== (int) $admission->doctor_id) {
+            $this->notifyDoctor($admission->fresh(['patient', 'doctor.user']), 'admission');
+        }
 
         return redirect()->route('admissions.show', $admission)->with('success', 'Admission updated successfully.');
     }
@@ -143,5 +151,23 @@ class AdmissionController extends Controller
         $admission->delete();
 
         return redirect()->route('admissions.index')->with('success', 'Admission record deleted.');
+    }
+
+    private function notifyDoctor(Admission $admission, string $assignmentType): void
+    {
+        $admission->loadMissing(['patient', 'doctor.user']);
+
+        if (! $admission->doctor || ! $admission->patient) {
+            return;
+        }
+
+        PatientAssignedNotification::notifyDoctor(
+            $admission->doctor,
+            $admission->patient,
+            $assignmentType,
+            $admission->admission_number,
+            $admission->admission_date?->toDateString(),
+            $admission->diagnosis,
+        );
     }
 }

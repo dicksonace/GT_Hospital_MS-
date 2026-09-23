@@ -8,6 +8,7 @@ use App\Models\Appointment;
 use App\Models\Department;
 use App\Models\Doctor;
 use App\Models\Patient;
+use App\Notifications\PatientAssignedNotification;
 use App\Support\NumberGenerator;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -74,11 +75,13 @@ class AppointmentController extends Controller
             'notes' => ['nullable', 'string'],
         ]);
 
-        $data['appointment_number'] = NumberGenerator::next('APT', Appointment::class, 'appointment_number');
+        $prefix = ($data['type'] ?? '') === AppointmentType::Checkup->value ? 'CHK' : 'APT';
+        $data['appointment_number'] = NumberGenerator::next($prefix, Appointment::class, 'appointment_number');
 
-        Appointment::create($data);
+        $appointment = Appointment::create($data);
+        $this->notifyDoctor($appointment, $data['type'] === AppointmentType::Checkup->value ? 'checkup' : 'appointment');
 
-        return redirect()->route('appointments.index')->with('success', 'Appointment scheduled successfully.');
+        return redirect()->route('appointments.index')->with('success', 'Appointment scheduled and the doctor was notified by email.');
     }
 
     public function show(Appointment $appointment): Response
@@ -118,7 +121,12 @@ class AppointmentController extends Controller
             'notes' => ['nullable', 'string'],
         ]);
 
+        $previousDoctorId = $appointment->doctor_id;
         $appointment->update($data);
+
+        if ((int) $previousDoctorId !== (int) $appointment->doctor_id) {
+            $this->notifyDoctor($appointment->fresh(['patient', 'doctor.user']), 'appointment');
+        }
 
         return redirect()->route('appointments.show', $appointment)->with('success', 'Appointment updated successfully.');
     }
@@ -128,5 +136,25 @@ class AppointmentController extends Controller
         $appointment->delete();
 
         return redirect()->route('appointments.index')->with('success', 'Appointment cancelled successfully.');
+    }
+
+    private function notifyDoctor(Appointment $appointment, string $assignmentType): void
+    {
+        $appointment->loadMissing(['patient', 'doctor.user']);
+
+        if (! $appointment->doctor || ! $appointment->patient) {
+            return;
+        }
+
+        $when = trim(($appointment->appointment_date?->toDateString() ?? '').' '.substr((string) $appointment->appointment_time, 0, 5));
+
+        PatientAssignedNotification::notifyDoctor(
+            $appointment->doctor,
+            $appointment->patient,
+            $assignmentType,
+            $appointment->appointment_number,
+            $when,
+            $appointment->reason,
+        );
     }
 }

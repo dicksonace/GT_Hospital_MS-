@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\UserRole;
+use App\Models\Nurse;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -54,13 +55,15 @@ class StaffController extends Controller
             'role' => ['required', 'in:'.implode(',', UserRole::values())],
         ]);
 
-        User::create([
+        $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
             'phone' => $data['phone'] ?? null,
             'role' => $data['role'],
         ]);
+
+        $this->syncNurseProfile($user);
 
         return redirect()->route('staff.index')->with('success', 'Staff member created successfully.');
     }
@@ -93,6 +96,7 @@ class StaffController extends Controller
         }
 
         $staff->save();
+        $this->syncNurseProfile($staff);
 
         return redirect()->route('staff.index')->with('success', 'Staff member updated successfully.');
     }
@@ -106,5 +110,19 @@ class StaffController extends Controller
         $staff->delete();
 
         return redirect()->route('staff.index')->with('success', 'Staff member deleted successfully.');
+    }
+
+    private function syncNurseProfile(User $user): void
+    {
+        if (! $user->hasRole(UserRole::Nurse) || $user->nurse) {
+            return;
+        }
+
+        Nurse::create([
+            'user_id' => $user->id,
+            'license_number' => 'NRS-'.str_pad((string) $user->id, 4, '0', STR_PAD_LEFT),
+            'phone' => $user->phone,
+            'is_available' => true,
+        ]);
     }
 }
