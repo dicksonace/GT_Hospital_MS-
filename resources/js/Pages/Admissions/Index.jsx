@@ -20,7 +20,7 @@ export default function Index({ admissions, filters, statuses }) {
             <Head title="Admissions" />
             <PageHeader
                 title="Admissions (IPD)"
-                subtitle="Admit, transfer, or discharge inpatients. Use Checkups for outpatient visits."
+                subtitle="Admit, checkup, transfer, or discharge patients"
                 actions={
                     <LinkButton href={route('admissions.create')}>
                         <Plus className="h-4 w-4" /> New Admission
@@ -60,7 +60,9 @@ export default function Index({ admissions, filters, statuses }) {
                                             {adm.patient?.first_name} {adm.patient?.last_name}
                                         </td>
                                         <td className="px-4 py-3 text-gray-600">
-                                            {adm.ward?.name} · Bed {adm.bed_number}
+                                            {adm.status === 'checkup'
+                                                ? 'Outpatient checkup'
+                                                : `${adm.ward?.name ?? '—'} · Bed ${adm.bed_number ?? '—'}`}
                                         </td>
                                         <td className="px-4 py-3 text-gray-600">{adm.admission_date}</td>
                                         <td className="px-4 py-3">

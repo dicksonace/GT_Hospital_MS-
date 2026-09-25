@@ -55,6 +55,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     Route::middleware('role:admin,doctor,receptionist')->group(function () {
+        Route::post('bills/{bill}/mark-paid', [BillController::class, 'markPaid'])->name('bills.mark-paid');
         Route::resource('bills', BillController::class);
     });
 

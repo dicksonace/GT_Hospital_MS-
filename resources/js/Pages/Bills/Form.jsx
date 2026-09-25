@@ -139,7 +139,18 @@ export default function BillForm({
                 </FormField>
                 {bill && (
                     <FormField label="Status" error={errors.status}>
-                        <SelectInput className="w-full" value={data.status} onChange={(e) => setData('status', e.target.value)}>
+                        <SelectInput
+                            className="w-full"
+                            value={data.status}
+                            onChange={(e) => {
+                                const status = e.target.value;
+                                setData({
+                                    ...data,
+                                    status,
+                                    paid_amount: status === 'paid' ? total : data.paid_amount,
+                                });
+                            }}
+                        >
                             {statuses.map((s) => (
                                 <option key={s.value} value={s.value}>{s.label}</option>
                             ))}

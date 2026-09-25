@@ -128,11 +128,13 @@ class BillController extends Controller
             'items.*.unit_price' => ['required', 'numeric', 'min:0'],
         ]);
 
+        $requestedStatus = BillStatus::from($data['status']);
+
         $bill->update([
             'patient_id' => $data['patient_id'],
             'appointment_id' => $data['appointment_id'] ?? null,
             'paid_amount' => $data['paid_amount'] ?? 0,
-            'status' => $data['status'],
+            'status' => $requestedStatus,
             'issued_at' => $data['issued_at'] ?? $bill->issued_at,
             'due_at' => $data['due_at'] ?? null,
             'notes' => $data['notes'] ?? null,
@@ -150,9 +152,16 @@ class BillController extends Controller
             ]);
         }
 
-        $bill->recalculateTotals();
+        $bill->recalculateTotals($requestedStatus);
 
         return redirect()->route('bills.show', $bill)->with('success', 'Bill updated successfully.');
+    }
+
+    public function markPaid(Bill $bill): RedirectResponse
+    {
+        $bill->recalculateTotals(BillStatus::Paid);
+
+        return redirect()->route('bills.show', $bill)->with('success', 'Bill marked as paid.');
     }
 
     public function destroy(Bill $bill): RedirectResponse

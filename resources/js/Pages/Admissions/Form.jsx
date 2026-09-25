@@ -24,6 +24,8 @@ export default function AdmissionForm({
         notes: admission?.notes ?? '',
     });
 
+    const isCheckup = data.status === 'checkup';
+
     const submit = (e) => {
         e.preventDefault();
         admission ? put(route('admissions.update', admission.id)) : post(route('admissions.store'));
@@ -48,9 +50,9 @@ export default function AdmissionForm({
                         ))}
                     </SelectInput>
                 </FormField>
-                <FormField label="Ward" error={errors.ward_id} required>
+                <FormField label="Ward" error={errors.ward_id} required={!isCheckup}>
                     <SelectInput className="w-full" value={data.ward_id} onChange={(e) => setData('ward_id', e.target.value)}>
-                        <option value="">Select ward</option>
+                        <option value="">{isCheckup ? 'Not required for checkup' : 'Select ward'}</option>
                         {wards.map((w) => (
                             <option key={w.id} value={w.id}>
                                 {w.name} ({Math.max(0, w.capacity - w.occupied_beds)} free)
@@ -58,8 +60,8 @@ export default function AdmissionForm({
                         ))}
                     </SelectInput>
                 </FormField>
-                <FormField label="Bed Number" error={errors.bed_number} required>
-                    <TextInput className="w-full" value={data.bed_number} onChange={(e) => setData('bed_number', e.target.value)} />
+                <FormField label="Bed Number" error={errors.bed_number} required={!isCheckup}>
+                    <TextInput className="w-full" value={data.bed_number} onChange={(e) => setData('bed_number', e.target.value)} placeholder={isCheckup ? 'Not required for checkup' : ''} />
                 </FormField>
                 <FormField label="Admission Date" error={errors.admission_date} required>
                     <TextInput type="date" className="w-full" value={data.admission_date} onChange={(e) => setData('admission_date', e.target.value)} />
@@ -73,6 +75,9 @@ export default function AdmissionForm({
                             <option key={s.value} value={s.value}>{s.label}</option>
                         ))}
                     </SelectInput>
+                    {isCheckup && (
+                        <p className="mt-1 text-xs text-gray-500">Checkup is an outpatient visit. Ward and bed are optional.</p>
+                    )}
                 </FormField>
             </div>
             <FormField label="Diagnosis" error={errors.diagnosis}>
@@ -85,7 +90,7 @@ export default function AdmissionForm({
                 <Link href={route('admissions.index')} className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
                     Cancel
                 </Link>
-                <PrimaryButton disabled={processing}>{admission ? 'Update Admission' : 'Admit Patient'}</PrimaryButton>
+                <PrimaryButton disabled={processing}>{admission ? 'Update Record' : isCheckup ? 'Save Checkup' : 'Admit Patient'}</PrimaryButton>
             </div>
         </form>
     );

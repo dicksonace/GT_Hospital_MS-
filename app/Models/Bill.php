@@ -47,16 +47,22 @@ class Bill extends Model
         return $this->hasMany(BillItem::class);
     }
 
-    public function recalculateTotals(): void
+    public function recalculateTotals(?BillStatus $requestedStatus = null): void
     {
-        $total = $this->items()->sum('total');
+        $total = (float) $this->items()->sum('total');
+        $paid = (float) $this->paid_amount;
         $this->total_amount = $total;
 
-        if ($this->paid_amount >= $total && $total > 0) {
+        $status = $requestedStatus ?? $this->status;
+
+        if ($status === BillStatus::Cancelled) {
+            $this->status = BillStatus::Cancelled;
+        } elseif ($status === BillStatus::Paid || ($total > 0 && $paid >= $total)) {
+            $this->paid_amount = max($paid, $total);
             $this->status = BillStatus::Paid;
-        } elseif ($this->paid_amount > 0) {
+        } elseif ($paid > 0) {
             $this->status = BillStatus::Partial;
-        } elseif ($this->status !== BillStatus::Cancelled) {
+        } else {
             $this->status = BillStatus::Pending;
         }
 

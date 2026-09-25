@@ -3,7 +3,7 @@ import LinkButton from '@/Components/LinkButton';
 import PageHeader from '@/Components/PageHeader';
 import StatusBadge from '@/Components/StatusBadge';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import { formatMoney } from '@/lib/currency';
 import { Pencil } from 'lucide-react';
 
@@ -68,6 +68,15 @@ export default function Show({ bill }) {
                                 <dd><StatusBadge status={bill.status} /></dd>
                             </div>
                         </dl>
+                        {bill.status !== 'paid' && bill.status !== 'cancelled' && (
+                            <button
+                                type="button"
+                                onClick={() => router.post(route('bills.mark-paid', bill.id))}
+                                className="mt-4 w-full rounded-md bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700"
+                            >
+                                Mark as Paid
+                            </button>
+                        )}
                     </Card>
                     {bill.appointment && (
                         <Card title="Linked Appointment">

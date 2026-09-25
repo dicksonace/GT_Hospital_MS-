@@ -53,21 +53,16 @@ class AdmissionController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        $data = $request->validate([
-            'patient_id' => ['required', 'exists:patients,id'],
-            'doctor_id' => ['required', 'exists:doctors,id'],
-            'ward_id' => ['required', 'exists:wards,id'],
-            'bed_number' => ['required', 'string', 'max:50'],
-            'admission_date' => ['required', 'date'],
-            'status' => ['required', 'in:'.implode(',', array_column(AdmissionStatus::cases(), 'value'))],
-            'diagnosis' => ['nullable', 'string'],
-            'notes' => ['nullable', 'string'],
-        ]);
+        $data = $this->validated($request);
 
-        $ward = Ward::findOrFail($data['ward_id']);
+        if ($data['status'] === AdmissionStatus::Admitted->value) {
+            $ward = Ward::findOrFail($data['ward_id']);
 
-        if ($ward->availableBeds() <= 0 && $data['status'] === AdmissionStatus::Admitted->value) {
-            return back()->withErrors(['ward_id' => 'Selected ward has no available beds.']);
+            if ($ward->availableBeds() <= 0) {
+                return back()->withErrors(['ward_id' => 'Selected ward has no available beds.']);
+            }
+
+            $ward->increment('occupied_beds');
         }
 
         $admission = Admission::create([
@@ -75,13 +70,13 @@ class AdmissionController extends Controller
             'admission_number' => NumberGenerator::next('ADM', Admission::class, 'admission_number'),
         ]);
 
-        if ($data['status'] === AdmissionStatus::Admitted->value) {
-            $ward->increment('occupied_beds');
-        }
+        $this->notifyDoctor($admission->fresh(['patient', 'doctor.user']), $data['status'] === AdmissionStatus::Checkup->value ? 'checkup' : 'admission');
 
-        $this->notifyDoctor($admission->fresh(['patient', 'doctor.user']), 'admission');
+        $message = $data['status'] === AdmissionStatus::Checkup->value
+            ? 'Checkup recorded and the doctor was notified by email.'
+            : 'Patient admitted and the attending doctor was notified by email.';
 
-        return redirect()->route('admissions.index')->with('success', 'Patient admitted and the attending doctor was notified by email.');
+        return redirect()->route('admissions.index')->with('success', $message);
     }
 
     public function show(Admission $admission): Response
@@ -108,17 +103,7 @@ class AdmissionController extends Controller
 
     public function update(Request $request, Admission $admission): RedirectResponse
     {
-        $data = $request->validate([
-            'patient_id' => ['required', 'exists:patients,id'],
-            'doctor_id' => ['required', 'exists:doctors,id'],
-            'ward_id' => ['required', 'exists:wards,id'],
-            'bed_number' => ['required', 'string', 'max:50'],
-            'admission_date' => ['required', 'date'],
-            'discharge_date' => ['nullable', 'date'],
-            'status' => ['required', 'in:'.implode(',', array_column(AdmissionStatus::cases(), 'value'))],
-            'diagnosis' => ['nullable', 'string'],
-            'notes' => ['nullable', 'string'],
-        ]);
+        $data = $this->validated($request, updating: true);
 
         $oldStatus = $admission->status;
         $oldWardId = $admission->ward_id;
@@ -169,5 +154,39 @@ class AdmissionController extends Controller
             $admission->admission_date?->toDateString(),
             $admission->diagnosis,
         );
+    }
+
+    /** @return array<string, mixed> */
+    private function validated(Request $request, bool $updating = false): array
+    {
+        $rules = [
+            'patient_id' => ['required', 'exists:patients,id'],
+            'doctor_id' => ['required', 'exists:doctors,id'],
+            'status' => ['required', 'in:'.implode(',', array_column(AdmissionStatus::cases(), 'value'))],
+            'admission_date' => ['required', 'date'],
+            'diagnosis' => ['nullable', 'string'],
+            'notes' => ['nullable', 'string'],
+        ];
+
+        if ($updating) {
+            $rules['discharge_date'] = ['nullable', 'date'];
+        }
+
+        if ($request->input('status') === AdmissionStatus::Checkup->value) {
+            $rules['ward_id'] = ['nullable', 'exists:wards,id'];
+            $rules['bed_number'] = ['nullable', 'string', 'max:50'];
+        } else {
+            $rules['ward_id'] = ['required', 'exists:wards,id'];
+            $rules['bed_number'] = ['required', 'string', 'max:50'];
+        }
+
+        $data = $request->validate($rules);
+
+        if (($data['status'] ?? null) === AdmissionStatus::Checkup->value) {
+            $data['ward_id'] = $data['ward_id'] ?? null;
+            $data['bed_number'] = $data['bed_number'] ?? null;
+        }
+
+        return $data;
     }
 }
